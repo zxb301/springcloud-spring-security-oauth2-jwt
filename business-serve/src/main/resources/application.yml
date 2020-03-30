@@ -1,0 +1,124 @@
+spring:
+  aop:
+    auto: true
+    proxy-target-class: true
+  application:
+    name: business-service
+  datasource:
+    #数据源基本配置
+    username: root
+    password: root
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/spring_cloud?useSSL=true&serverTimezone=GMT%2B8
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+       ## 最小空闲连接数量
+      minimum-idle: 5
+       ## 连接池最大连接数
+      maximum-pool-size: 15
+       ## 空闲连接存活最大时间，默认600000（10分钟）
+      idle-timeout: 180000
+       ## 此属性控制从池返回的连接的默认自动提交行为,默认值：true
+      auto-commit: true
+       ## 连接池母子
+      pool-name: MyHikariCP
+       ## 此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
+      max-lifetime: 1800000
+       # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 18800
+       ## 数据库连接超时时间,默认30秒，即30000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+
+mybatis-plus:
+  mapper-locations: classpath:mybatis/mapper/*/*.xml,classpath:mybatis/mapper/*.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.own.business.mvc.entity
+  global-config:
+    #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
+    id-type: 0
+    #字段策略 0:"忽略判断",1:"非 NULL 判断"),2:"非空判断"
+    field-strategy: 1
+    #驼峰下划线转换
+    db-column-underline: true
+    #mp2.3+ 全局表前缀 mp_
+    #table-prefix: mp_
+    #刷新mapper 调试神器
+   # refresh-mapper: true
+    #数据库大写下划线转换
+    #capital-mode: true
+    # Sequence序列接口实现类配置
+    key-generator: com.baomidou.mybatisplus.incrementer.OracleKeyGenerator
+    #逻辑删除配置（下面3个配置）
+    logic-delete-value: 1
+    logic-not-delete-value: 0
+    #sql-injector: com.baomidou.mybatisplus.mapper.LogicSqlInjector
+    #自定义填充策略接口实现
+    #meta-object-handler: com.baomidou.springboot.MyMetaObjectHandler
+  configuration:
+    #配置返回数据库(column下划线命名&&返回java实体是驼峰命名)，自动匹配无需as（没开启这个，SQL需要写as： select user_id as userId）
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    #配置JdbcTypeForNull, oracle数据库必须配置
+    jdbc-type-for-null: 'null'
+
+server:
+  port: 8090
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8761/eureka/
+
+ribbon:
+  MaxAutoRetries: 2 #最大重试次数，当Eureka中可以找到服务，但是服务连不上时将会重试，如果eureka中找不到服务则直接走断路器
+  MaxAutoRetriesNextServer: 3 #切换实例的重试次数
+  OkToRetryOnAllOperations: false  #对所有操作请求都进行重试，如果是get则可以，如果是post，put等操作没有实现幂等的情况下是很危险的,所以设置为false
+  ConnectTimeout: 80000  #请求连接的超时时间
+  ReadTimeout: 80000 #请求处理的超时时间
+
+hystrix:
+  command:
+    default:  #default全局有效，service id指定应用有效
+      execution:
+        timeout:
+          #如果enabled设置为false，则请求超时交给ribbon控制,为true,则超时作为熔断根据
+          enabled: false
+        isolation:
+          strategy: SEMAPHORE
+          thread:
+            timeoutInMilliseconds: 100000 #断路器的超时时间,下级服务返回超出熔断器时间，即便成功，消费端消息也是TIMEOUT,所以一般断路器的超时时间需要大于ribbon的超时时间
+#Hystrix 开启断路器
+feign:
+  hystrix:
+    enabled: true
+  compression:
+      request:
+        enabled: true
+        mime-types[0]: text/xml
+        request.mime-types[1]: application/xml
+        request.mime-types[2]: application/json
+        request.min-request-size: 2048
+      response:
+        enabled: true
+#Hystrix Dashboard断路面板配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream
+
+own:
+  jwt:
+    cookieName: LY_TOKEN
+    pubKeyPath: d:\\tmp\\rsa\\pub.pem # 公钥地址
+
+info:
+  app.name: business-service
+  company.name: springcloud
+  build.artifactId: $project.artifactId$
+  build.version: $project.version$
+
+
+
+

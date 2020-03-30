@@ -1,0 +1,55 @@
+server:
+  port: 8092
+spring:
+  application:
+    name: api-zuul
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8761/eureka/
+
+zuul:
+  routes:
+    api-a:
+      path: /api-a/**
+      serviceId: BUSINESS-SERVICE
+    api-b:
+      path: /api-b/**
+      serviceId: USER-SERVE
+    api-c:
+      path: /api-c/**
+      serviceId: JWT-SERVE
+  ignored-services:
+    - upload-service # 忽略upload-service服务
+  add-host-header: true #携带请求本身的head头信息
+  sensitive-headers: #匹配禁止使用的头信息，这里设置为null，否则set-cookie无效
+
+ribbon:
+  ConnectTimeout: 6000 # 连接超时时间(ms)
+  ReadTimeout: 6000 # 通信超时时间(ms)
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMillisecond: 8000 # 熔断超时时长：6000ms
+feign:
+  compression:
+    request:
+      enabled: true
+      mime-types[0]: text/xml
+      request.mime-types[1]: application/xml
+      request.mime-types[2]: application/json
+      request.min-request-size: 2048
+    response:
+      enabled: true
+own:
+  jwt:
+    cookieName: LY_TOKEN
+    pubKeyPath: d:\\tmp\\rsa\\pub.pem # 公钥地址
+  filter:
+    allowPaths:
+       /api-c/jwt/login
+
+

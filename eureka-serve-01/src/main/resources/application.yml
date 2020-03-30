@@ -1,0 +1,32 @@
+server:
+  port: 8761
+
+eureka:
+  instance:
+    #hostname: own
+    prefer-ip-address: true # 当其它服务获取地址时提供ip而不是hostname
+   #ip-address: 127.0.0.1 # 指定自己的ip信息，不指定的话会自己寻找
+   #表示 Eureka Server 在接收到上一个心跳之后等待下一个心跳的秒数（默认 90 秒），若不能在指定时间内收到心跳，则移除此实例，并禁止此实例的流量。
+   #此值设置太长，即使实例不存在，流量也能路由到该实例
+   #此值设置太小，由于网络故障，实例会被取消流量
+   #lease-expiration-duration-in-seconds:
+   #表示 Eureka Client 向 Eureka Server 发送心跳的频率（默认 30 秒），如果在 lease-expiration-duration-in-seconds 指定的时间内未收到心跳，则移除该实例。
+   #需要设置为至少高于 lease-renewal-interval-in-seconds 的值，不然会被误移除了。
+   #lease-renewal-interval-in-seconds:
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      #defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+      defaultZone: http://127.0.0.1:${server.port}/eureka/
+  server:
+    #是否开启自我保护模式，默认为true。
+    enable-self-preservation: true
+    #清理无效节点的时间间隔，默认60000毫秒，即60秒
+    eviction-interval-timer-in-ms: 10000
+    #表示 Eureka Server 开启自我保护的系数，默认：0.85。
+    renewal-percent-threshold: 0.85
+
+spring:
+  application:
+    name: eurka-server-01
